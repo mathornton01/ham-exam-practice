@@ -63,9 +63,20 @@ ContinuallyAskQs <- function(QDF,probvec = rep(1/nrow(QDF),nrow(QDF))){
     qcors[qpret[[2]]] <- qcors[qpret[[2]]]+qpret[[3]];
     qasks[qpret[[2]]] <- qasks[qpret[[2]]]+1;
   }
-  cat(paste("Of a total of ", sum(qasks), " questions asked, you correctly answered ", sum(qcors), " (", sum(qcors)/sum(qasks)*100, "%)"))
+  cat(paste("Of a total of ", sum(qasks), " questions asked, you correctly answered ", sum(qcors), " (", sum(qcors)/sum(qasks)*100, "% )"))
   cat((paste("Here is the breakdown of the questions asked and your hit ratio:\n")))
   for (qasked in which(qasks!=0)){
+    oldsolnval <- QDF[qasked,7];
+    if (oldsolnval == "(A)"){oldsolnidx <- 1;}
+    if (oldsolnval == "(B)"){oldsolnidx <- 2;}
+    if (oldsolnval == "(C)"){oldsolnidx <- 3;}
+    if (oldsolnval == "(D)"){oldsolnidx <- 4;}
+    qans1 <- substr(as.character(QDF[qasked,3]),3,nchar(as.character(QDF[qasked,3])))
+    qans2 <- substr(as.character(QDF[qasked,4]),3,nchar(as.character(QDF[qasked,4])))
+    qans3 <- substr(as.character(QDF[qasked,5]),3,nchar(as.character(QDF[qasked,5])))
+    qans4 <- substr(as.character(QDF[qasked,6]),3,nchar(as.character(QDF[qasked,6])))
+    
+    qans <- c(qans1,qans2,qans3,qans4)
     cat(paste(QDF[qasked,1]," | ",QDF[qasked,2]," | Ans: ",qans[oldsolnidx]," | Time(s) asked: ",qasks[qasked], " | Time(s) correct: ",qcors[qasked]," | Hit ratio: ", qcors[qasked]/qasks[qasked], "\n"));
   }
   return(qpvec);
