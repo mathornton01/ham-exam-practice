@@ -1,6 +1,6 @@
 # General Exam HAM questions Testing Code 
 
-setwd("C:/Users/matho/Desktop/HAM-Questions")
+#setwd("../data/HAM-Questions")
 
 askOneQ <- function(QDF,probvec = rep(1/nrow(QDF),nrow(QDF))){
   qidx <- sample(1:nrow(QDF),1,prob=probvec); 
@@ -82,5 +82,9 @@ numrange <- 40:60;
 probvec <- rep(0,nrow(QDF));
 probvec[numrange] <- 1; 
 probvec <- probvec/sum(probvec);
+
+numto <- nrow(QDF); 
+probvec <- c(rep(1,numto),rep(0,nrow(QDF)-numto))
+probvec <- probvec/sum(probvec)
 
 probvecsaved <- ContinuallyAskQs(QDF,probvec);
