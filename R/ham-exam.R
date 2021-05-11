@@ -44,24 +44,43 @@ askOneQ <- function(QDF,probvec = rep(1/nrow(QDF),nrow(QDF))){
     pvec[qidx] <- pvec[qidx]-(0.5*pvec[qidx]);
   }
   pvec <- pvec/sum(pvec);
-  return(pvec)
+  return(list(pvec,qidx,length(corans)==1))
 } 
 
 ContinuallyAskQs <- function(QDF,probvec = rep(1/nrow(QDF),nrow(QDF))){
-  qpvec <- askOneQ(QDF,probvec); 
-  while (!is.list(qpvec)){
-    qpvec <- askOneQ(QDF,qpvec);
+  qcors <- rep(0,nrow(QDF)); 
+  qasks <- rep(0,nrow(QDF));
+  qpret <- askOneQ(QDF,probvec); 
+  if (length(qpret)!=3){return(probvec)}
+  qpvec <- qpret[[1]];
+  qcors[qpret[[2]]] <- qcors[qpret[[2]]]+qpret[[3]];
+  qasks[qpret[[2]]] <- qasks[qpret[[2]]]+1;
+  
+  while (length(qpret)==3){
+    qpret <- askOneQ(QDF,qpvec);
+    if (length(qpret) != 3){break;}
+    qpvec <- qpret[[1]]
+    qcors[qpret[[2]]] <- qcors[qpret[[2]]]+qpret[[3]];
+    qasks[qpret[[2]]] <- qasks[qpret[[2]]]+1;
   }
-  print("Most Missed Questions: ")
-  print(as.character(QDF[order(qpvec[[2]]) %in% (nrow(QDF)-30):nrow(QDF),1]));
-  return(qpvec[[2]]);
+  cat(paste("Of a total of ", sum(qasks), " questions asked, you correctly answered ", sum(qcors), " (", sum(qcors)/sum(qasks)*100, "%)"))
+  cat((paste("Here is the breakdown of the questions asked and your hit ratio:\n")))
+  for (qasked in which(qasks!=0)){
+    cat(paste(QDF[qasked,1]," | ",QDF[qasked,2]," | Ans: ",qans[oldsolnidx]," | Time(s) asked: ",qasks[qasked], " | Time(s) correct: ",qcors[qasked]," | Hit ratio: ", qcors[qasked]/qasks[qasked], "\n"));
+  }
+  return(qpvec);
 }
 
 generalQs <- read.csv("genquest.csv",sep="|");
 QDF <- generalQs;
 
-numto <- 45; 
+numto <- 60; 
 probvec <- c(rep(1,numto),rep(0,nrow(QDF)-numto))
 probvec <- probvec/sum(probvec)
 
-ContinuallyAskQs(QDF,probvec)
+numrange <- 40:60; 
+probvec <- rep(0,nrow(QDF));
+probvec[numrange] <- 1; 
+probvec <- probvec/sum(probvec);
+
+probvecsaved <- ContinuallyAskQs(QDF,probvec);
